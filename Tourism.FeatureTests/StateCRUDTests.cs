@@ -45,5 +45,29 @@ namespace Tourism.FeatureTests
 
             return context;
         }
+
+        [Fact]
+        public async Task Show_ReturnsViewWithStates()
+        {
+            //Arrange
+            var client = _factory.CreateClient();
+
+            var context = GetDbContext();
+            context.States.Add(new State{ Name = "Ohio", Abbreviation = "OH" });
+            context.States.Add(new State {Name = "New York", Abbreviation = "NY" });
+
+            context.SaveChanges();
+
+            //Act
+            var response = await client.GetAsync("/States/Show/1");
+            var html = await response.Content.ReadAsStringAsync();
+
+            //Assert
+            response.EnsureSuccessStatusCode();
+            Assert.Contains("Ohio", html);
+            Assert.Contains("OH", html);
+            Assert.DoesNotContain("New York", html);
+        }
+
     }
 }
